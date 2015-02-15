@@ -1,0 +1,9 @@
+application: tournament-app
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: 1
+
+handlers:
+- url: /.*
+  script: main.application.app
