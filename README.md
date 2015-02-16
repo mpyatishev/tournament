@@ -10,4 +10,5 @@ Tournament
 
 Запуск тестов
 
+pip install webtest
 tournament/run_tests.py google_appengine tournament/application/tests
