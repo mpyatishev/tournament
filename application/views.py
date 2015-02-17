@@ -23,8 +23,11 @@ class PlayerView(MethodView):
         return jsonify(player.to_dict())
 
     def post(self):
-        args = request.get_json()
-        print(request.data)
+        try:
+            args = request.get_json()
+        except BadRequest as e:
+            print(e, request.data)
+            return 'error'
         if args and 'name' in args and 'power' in args and 'medals' in args\
                 and 'money' in args and 'tournament_id' in args:
             player = Player(
@@ -34,6 +37,7 @@ class PlayerView(MethodView):
             )
             player_key = player.put()
             return jsonify({'id': player_key.id()})
+
         return 'error'
 
 
