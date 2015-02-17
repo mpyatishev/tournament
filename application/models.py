@@ -35,6 +35,11 @@ class Player(ndb.Model):
 
         return opponent
 
+    def attack(self, opponent):
+        attack = random.randint(-10, 10)
+        self.medals += attack
+        opponent.medals -= attack
+
 
 class Tournament(ndb.Model):
     start = ndb.DateTimeProperty()

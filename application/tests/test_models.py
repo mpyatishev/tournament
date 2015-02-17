@@ -3,6 +3,8 @@
 import random
 import unittest
 
+import mock
+
 from google.appengine.ext import testbed
 
 from application.models import Player, Tournament
@@ -68,3 +70,34 @@ class PlayerTest(TestCase):
         self.assertNotEqual(opponent, player)
         self.assertIn(opponent, self.groups[0])
         self.assertFalse(opponent.in_attack)
+
+    def test_attack(self):
+        player = self.groups[0][5]
+        opponent = player.find_opponent()
+
+        player.attack(opponent)
+
+        self.assertNotEqual(player.medals, 1000)
+        self.assertNotEqual(opponent.medals, 1000)
+
+    @mock.patch('application.models.random.randint')
+    def test_attack_increases_player_medals(self, mock):
+        mock.return_value = 10
+
+        player = self.groups[0][5]
+        opponent = player.find_opponent()
+
+        player.attack(opponent)
+
+        self.assertEqual(player.medals - opponent.medals, 20)
+
+    @mock.patch('application.models.random.randint')
+    def test_attack_decreases_player_medals(self, mock):
+        mock.return_value = -10
+
+        player = self.groups[0][5]
+        opponent = player.find_opponent()
+
+        player.attack(opponent)
+
+        self.assertEqual(player.medals - opponent.medals, -20)
