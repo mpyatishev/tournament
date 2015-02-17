@@ -82,3 +82,35 @@ class GameView(MethodView):
         opponent = player.find_opponent()
 
         return '%s' % opponent.key.id()
+
+    def post(self):
+        args = request.get_json()
+
+        if 'from_player_id' not in args or 'to_player_id' not in args\
+                or 'tournament_id' not in args:
+            return 'error'
+
+        player_id = int(args['from_player_id'])
+        opponent_id = int(args['to_player_id'])
+        tournament_id = int(args['tournament_id'])
+
+        tournament = Tournament.get_by_id(tournament_id)
+        player = Player.get_by_id(player_id, parent=tournament.key)
+        opponent = Player.get_by_id(opponent_id, parent=tournament.key)
+
+        player.in_attack = True
+        player.put()
+        opponent.in_attack = True
+        opponent.put()
+
+        player.attack(opponent)
+
+        player.in_attack = False
+        player.put()
+        opponent.in_attack = False
+        opponent.put()
+
+        return jsonify({
+            'from_player': player.medals,
+            'to_player': opponent.medals
+        })

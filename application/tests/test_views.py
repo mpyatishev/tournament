@@ -108,6 +108,10 @@ class TournamentViewTest(TestCase):
 
 
 class GameViewTest(TestCase):
+    def setUp(self):
+        super(GameViewTest, self).setUp()
+        self._prepare_data()
+
     def _prepare_data(self):
         tournament = Tournament()
         tournament_key = tournament.put()
@@ -133,13 +137,13 @@ class GameViewTest(TestCase):
             prev_i = i + 1
 
         self.players = players
+        self.player = self.players[random.randint(0, 199)]
         self.tournament_key = tournament_key
 
     def test_opponent_returns_player_from_same_tournament_group(self):
         self._prepare_data()
-        player = self.players[random.randint(0, 199)]
         resp = self.testapp.get(
-            '/opponent/?player_id=%s&tournament_id=%s' % (player.key.id(),
+            '/opponent/?player_id=%s&tournament_id=%s' % (self.player.key.id(),
                                                           self.tournament_key.id()),
         )
 
@@ -147,8 +151,23 @@ class GameViewTest(TestCase):
         self.assertTrue(int(resp.normal_body))
 
         opponent = Player.get_by_id(int(resp.normal_body), parent=self.tournament_key)
-        self.assertNotEqual(opponent, player)
-        self.assertIn(opponent, player.get_group())
+        self.assertNotEqual(opponent, self.player)
+        self.assertIn(opponent, self.player.get_group())
+
+    def test_attack(self):
+        opponent = self.player.find_opponent()
+
+        resp = self.testapp.post_json(
+            '/attack/',
+            {
+                'from_player_id': self.player.key.id(),
+                'to_player_id': opponent.key.id(),
+                'tournament_id': self.tournament_key.id(),
+            }
+        )
+
+        self.assertNotEqual(self.player.medals, 1000)
+        self.assertNotEqual(opponent.medals, 1000)
 
 
 if __name__ == '__main__':

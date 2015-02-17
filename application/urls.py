@@ -18,3 +18,5 @@ app.add_url_rule('/tournament/',
 game_view = views.GameView.as_view('game_api')
 app.add_url_rule('/opponent/',
                  view_func=game_view, methods=['GET'])
+app.add_url_rule('/attack/',
+                 view_func=game_view, methods=['POST'])
