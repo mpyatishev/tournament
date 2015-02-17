@@ -20,6 +20,10 @@ class TestCase(unittest.TestCase):
 
 
 class PlayerTest(TestCase):
+    def setUp(self):
+        super(PlayerTest, self).setUp()
+        self._prepare_data()
+
     def _prepare_data(self):
         tournament = Tournament()
         tournament_key = tournament.put()
@@ -49,11 +53,18 @@ class PlayerTest(TestCase):
         self.tournament_key = tournament_key
 
     def test_get_group(self):
-        self._prepare_data()
-
         player = self.groups[0][5]
 
         group = player.get_group()
 
         self.assertEqual(len(group), len(self.groups[0]))
         self.assertEqual(group, self.groups[0])
+
+    def test_find_opponent(self):
+        player = self.groups[0][5]
+
+        opponent = player.find_opponent()
+
+        self.assertNotEqual(opponent, player)
+        self.assertIn(opponent, self.groups[0])
+        self.assertFalse(opponent.in_attack)

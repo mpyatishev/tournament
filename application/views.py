@@ -1,7 +1,5 @@
 # -*- conding: utf-8 -*-
 
-import random
-
 from datetime import datetime
 
 from flask import jsonify, request
@@ -81,10 +79,6 @@ class GameView(MethodView):
         tournament = Tournament.get_by_id(tournament_id)
 
         player = Player.get_by_id(player_id, parent=tournament.key)
-        opponents = player.get_group()
-
-        opponent = player
-        while opponent.in_attack or player == opponent:
-            opponent = opponents[random.randint(0, 49)]
+        opponent = player.find_opponent()
 
         return '%s' % opponent.key.id()

@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+
+import random
+
 from google.appengine.ext import ndb
 
 
@@ -21,6 +25,15 @@ class Player(ndb.Model):
                 return group
 
         return []
+
+    def find_opponent(self):
+        opponents = self.get_group()
+
+        opponent = self
+        while opponent.in_attack or opponent == self:
+            opponent = opponents[random.randint(0, 49)]
+
+        return opponent
 
 
 class Tournament(ndb.Model):
