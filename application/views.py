@@ -24,8 +24,9 @@ class PlayerView(MethodView):
 
     def post(self):
         args = request.get_json()
-        if 'name' in args and 'power' in args and 'medals' in args and 'money' in args\
-                and 'tournament_id' in args:
+        print(request.data)
+        if args and 'name' in args and 'power' in args and 'medals' in args\
+                and 'money' in args and 'tournament_id' in args:
             player = Player(
                 parent=ndb.Key(Tournament, args['tournament_id']),
                 name=args['name'], power=args['power'],

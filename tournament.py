@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import json
 import random
 import time
+import urllib
 import urllib2
 
 
@@ -31,7 +33,8 @@ class Player:
 
 
 def create_tournament():
-    return urllib2.urlopen(backend_url + '/tournament/', {})
+    res = urllib2.urlopen(backend_url + '/tournament/', '').read()
+    return json.loads(res)['id']
 
 
 def generate_players(tournament_id, num_players=200):
@@ -42,7 +45,9 @@ def generate_players(tournament_id, num_players=200):
 
         data = player.get_data()
         data.update({'tournament_id': tournament_id})
-        player_id = urllib2.urlopen(backend_url + '/player/', data)
+        print(json.dumps(data))
+        player_id = urllib2.urlopen(backend_url + '/player/', json.dumps(data)).read()
+        print(player_id)
         player.set_id(player_id)
 
         players.append(player)
