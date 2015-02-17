@@ -81,26 +81,10 @@ class GameView(MethodView):
         tournament = Tournament.get_by_id(tournament_id)
 
         player = Player.get_by_id(player_id, parent=tournament.key)
-        opponents = Player.query(ancestor=tournament.key).order(Player.power).fetch()
-
-        groups = []
-        player_group = None
-        prev_i = 0
-        for i in xrange(49, 200, 50):
-            group = opponents[prev_i:i]
-            # print(prev_i, i, group)
-            groups.append(group)
-            prev_i = i + 1
-
-            if player in group:
-                player_group = group
-
-        # print(player)
-        # print(player_group)
+        opponents = player.get_group()
 
         opponent = player
         while opponent.in_attack or player == opponent:
-            print('here')
-            opponent = player_group[random.randint(0, 49)]
+            opponent = opponents[random.randint(0, 49)]
 
         return '%s' % opponent.key.id()

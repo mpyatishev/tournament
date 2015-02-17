@@ -127,17 +127,12 @@ class GameViewTest(TestCase):
 
         groups = []
         prev_i = 0
-        player_group = None
-        for i in xrange(49, 200, 50):
+        for i in xrange(50, 200, 50):
             group = players[prev_i:i]
-            # print(prev_i, i, group)
             groups.append(group)
             prev_i = i + 1
-            if player in group:
-                player_group = group
 
         self.players = players
-        self.player_group = player_group
         self.tournament_key = tournament_key
 
     def test_opponent_returns_player_from_same_tournament_group(self):
@@ -152,7 +147,8 @@ class GameViewTest(TestCase):
         self.assertTrue(int(resp.normal_body))
 
         opponent = Player.get_by_id(int(resp.normal_body), parent=self.tournament_key)
-        self.assertIn(opponent, self.player_group)
+        self.assertNotEqual(opponent, player)
+        self.assertIn(opponent, player.get_group())
 
 
 if __name__ == '__main__':
