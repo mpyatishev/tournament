@@ -41,7 +41,25 @@ class TournamentView(MethodView):
         if id is None:
             return 'error'
 
-        return 'not implemented'
+        tournament = Tournament.get_by_id(int(id))
+        query = Player.query(ancestor=tournament.key).order(Player.power, Player.medals)
+
+        group, cursor, more = query.fetch_page(50)
+
+        groups = []
+        groups.append(group)
+
+        while more and cursor:
+            group, cursor, more = query.fetch_page(50, start_cursor=cursor)
+            groups.append(group)
+
+        result = {
+            'group%s' % groups.index(group): [(_.key.id(), _.name, _.medals)
+                                              for _ in group]
+            for group in groups
+        }
+
+        return jsonify(result)
 
     def post(self):
         try:

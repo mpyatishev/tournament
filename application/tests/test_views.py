@@ -106,6 +106,27 @@ class TournamentViewTest(TestCase):
 
         self.assertEqual(tournament.stop, datetime.fromtimestamp(start + two_minutes))
 
+    def test_get_results(self):
+        tournament = Tournament()
+        tournament_key = tournament.put()
+
+        for i in xrange(200):
+            player = Player(
+                parent=tournament_key,
+                name='player%s' % i,
+                power=random.randint(1, 1000),
+                medals=1000,
+                money=0,
+            )
+            player.put()
+
+        resp = self.testapp.get('/tournament/%s' % tournament_key.id())
+
+        self.assertEqual(resp.status_int, 200)
+
+        results = resp.json
+        self.assertEqual(len(results.keys()), 4)
+
 
 class GameViewTest(TestCase):
     def setUp(self):
