@@ -81,6 +81,7 @@ def start_tournament(players, tournament_id):
 
     tournament_duration = 120
     battle_pause = 5
+    players_dir = {_.id: _ for _ in players}
 
     start = time.time()
     stop = start + tournament_duration
@@ -97,11 +98,15 @@ def start_tournament(players, tournament_id):
         '/opponent/?tournament_id=%s&player_id=' % tournament_id
     attack_url = backend_url + '/attack/'
     has_attacked = set()
-    players_dir = {_.id: _ for _ in players}
     while time.time() < stop:
-        player = players[random.randint(0, PLAYERS_NUM - 1)]
-        while player in has_attacked and time.time() < player.last_battle + battle_pause:
+        has_attacked_full = len(has_attacked) >= PLAYERS_NUM
+        while True:
             player = players[random.randint(0, PLAYERS_NUM - 1)]
+            if has_attacked_full and time.time() < player.last_battle + battle_pause:
+                break
+            elif player not in has_attacked:
+                has_attacked.add(player)
+                break
 
         resp = urllib2.urlopen(get_opponent_url + '%s' % player.id).read()
         opponent_id = json.loads(resp)
@@ -119,8 +124,6 @@ def start_tournament(players, tournament_id):
         opponent = players_dir[opponent_id]
         logger.info('%s attacked %s' % (player.name, opponent.name))
         logger.debug(result)
-
-        has_attacked.add(player)
 
 
 def stop_tournament(tournament_id):
