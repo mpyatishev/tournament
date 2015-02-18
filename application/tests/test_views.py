@@ -89,13 +89,11 @@ class TournamentViewTest(TestCase):
         tournament_key = tournament.put()
 
         start = time.time()
-        two_minutes = 120
         resp = self.testapp.post_json(
             '/tournament/',
             {
                 'id': tournament_key.id(),
                 'start_timestamp': start,
-                'duration': two_minutes,
             }
         )
 
@@ -103,8 +101,6 @@ class TournamentViewTest(TestCase):
 
         tournament = Tournament.get_by_id(tournament_key.id())
         self.assertEqual(tournament.start, datetime.fromtimestamp(start))
-
-        self.assertEqual(tournament.stop, datetime.fromtimestamp(start + two_minutes))
 
     def test_get_results(self):
         tournament = Tournament()
@@ -187,8 +183,8 @@ class GameViewTest(TestCase):
             }
         )
 
-        self.assertNotEqual(self.player.medals, 1000)
-        self.assertNotEqual(opponent.medals, 1000)
+        self.assertEqual(resp.status_int, 200)
+        self.assertIn(opponent.key, self.player.attacked)
 
 
 if __name__ == '__main__':

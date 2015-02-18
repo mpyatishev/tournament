@@ -47,19 +47,18 @@ class TournamentView(MethodView):
             return 'error'
 
         tournament = Tournament.get_by_id(int(id))
-        query = Player.query(ancestor=tournament.key).order(Player.power, Player.medals)
+        query = Player.query(ancestor=tournament.key).order(Player.power)
 
         group, cursor, more = query.fetch_page(50)
 
         groups = []
-        groups.append(group)
-
+        groups.append(sorted(group, key=lambda x: x.medals, reverse=True))
         while more and cursor:
             group, cursor, more = query.fetch_page(50, start_cursor=cursor)
-            groups.append(group)
+            groups.append(sorted(group, key=lambda x: x.medals, reverse=True))
 
         result = {
-            'group%s' % groups.index(group): [(_.key.id(), _.name, _.medals)
+            'group%s' % groups.index(group): [(_.key.id(), _.name, _.medals, _.money)
                                               for _ in group]
             for group in groups
         }
@@ -76,15 +75,20 @@ class TournamentView(MethodView):
             tournament = Tournament()
             tournament_key = tournament.put()
             return jsonify({'id': tournament_key.id()})
-        elif 'id' in args and 'start_timestamp' in args and 'duration' in args:
+        elif 'id' in args and 'start_timestamp' in args:
             tournament = Tournament.get_by_id(args['id'])
             if tournament:
                 tournament.start = datetime.fromtimestamp(args['start_timestamp'])
-                tournament.stop = datetime.fromtimestamp(
-                    args['start_timestamp'] + args['duration'])
                 tournament.put()
 
                 return 'tournament %s started' % tournament.key.id()
+        elif 'id' in args and 'stop_timestamp' in args:
+            tournament = Tournament.get_by_id(args['id'])
+            if tournament:
+                tournament.stop = datetime.fromtimestamp(args['stop_timestamp'])
+                tournament.put()
+                tournament.calc_scores()
+                return 'tournament %s stoped' % tournament.key.id()
 
         return 'error'
 

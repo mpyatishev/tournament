@@ -80,6 +80,8 @@ class PlayerTest(TestCase):
         self.assertNotEqual(player.medals, 1000)
         self.assertNotEqual(opponent.medals, 1000)
 
+        self.assertIn(opponent.key, player.attacked)
+
     @mock.patch('application.models.random.randint')
     def test_attack_increases_player_medals(self, mock):
         mock.return_value = 10
