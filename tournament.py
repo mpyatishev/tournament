@@ -8,8 +8,8 @@ import time
 import urllib2
 
 PLAYERS_NUM = 200
-backend_url = 'http://tournament-app.appspot.com'
-# backend_url = 'http://localhost:8080'
+# backend_url = 'http://tournament-app.appspot.com'
+backend_url = 'http://localhost:8081'
 
 logger = logging.getLogger(__name__)
 ch = logging.StreamHandler()
